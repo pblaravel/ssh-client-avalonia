@@ -1,0 +1,44 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:SSHClientAvalonia.ViewModels"
+        x:Class="SSHClientAvalonia.Views.ConnectionEditWindow"
+        x:DataType="vm:ConnectionEditViewModel"
+        Title="Подключение"
+        Width="480"
+        SizeToContent="Height"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner">
+  <Grid Margin="16" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,*" ColumnDefinitions="140,*">
+    <TextBlock Grid.Row="0" Grid.Column="0" Text="Название" VerticalAlignment="Center" Margin="0,0,8,8"/>
+    <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Name}" Margin="0,0,0,8"/>
+
+    <TextBlock Grid.Row="1" Grid.Column="0" Text="Хост" VerticalAlignment="Center" Margin="0,0,8,8"/>
+    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Host}" Margin="0,0,0,8"/>
+
+    <TextBlock Grid.Row="2" Grid.Column="0" Text="Порт" VerticalAlignment="Center" Margin="0,0,8,8"/>
+    <NumericUpDown Grid.Row="2" Grid.Column="1" Minimum="1" Maximum="65535" Value="{Binding Port}" Margin="0,0,0,8"/>
+
+    <TextBlock Grid.Row="3" Grid.Column="0" Text="Пользователь" VerticalAlignment="Center" Margin="0,0,8,8"/>
+    <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding Username}" Margin="0,0,0,8"/>
+
+    <TextBlock Grid.Row="4" Grid.Column="0" Text="Пароль" VerticalAlignment="Center" Margin="0,0,8,8"/>
+    <TextBox Grid.Row="4" Grid.Column="1" PasswordChar="*" Text="{Binding Password}" Margin="0,0,0,8"/>
+
+    <TextBlock Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" TextWrapping="Wrap" Margin="0,8,0,8"
+               Text="SSH-ключ (опционально). Если указан файл ключа, он будет использован вместе с паролем при наличии."/>
+
+    <TextBlock Grid.Row="6" Grid.Column="0" Text="Путь к ключу" VerticalAlignment="Center" Margin="0,0,8,8"/>
+    <TextBox Grid.Row="6" Grid.Column="1" Text="{Binding PrivateKeyPath}" PlaceholderText="/home/user/.ssh/id_rsa" Margin="0,0,0,8"/>
+
+    <TextBlock Grid.Row="7" Grid.Column="0" Text="Пароль ключа" VerticalAlignment="Center" Margin="0,0,8,8"/>
+    <TextBox Grid.Row="7" Grid.Column="1" PasswordChar="*" Text="{Binding PrivateKeyPassphrase}" Margin="0,0,0,8"/>
+
+    <TextBlock Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding ValidationMessage}"
+               Foreground="Crimson" TextWrapping="Wrap" Margin="0,8,0,0"/>
+
+    <StackPanel Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,16,0,0">
+      <Button Content="Отмена" IsCancel="True" Click="OnCancelClick"/>
+      <Button Content="Сохранить" IsDefault="True" Click="OnSaveClick"/>
+    </StackPanel>
+  </Grid>
+</Window>

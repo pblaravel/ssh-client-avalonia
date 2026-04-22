@@ -1,20 +1,68 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:SSHClientAvalonia.ViewModels"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        xmlns:views="using:SSHClientAvalonia.Views"
+        mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="700"
         x:Class="SSHClientAvalonia.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         Icon="/Assets/avalonia-logo.ico"
-        Title="SSHClientAvalonia">
+        Title="SSH-клиент"
+        MinWidth="800"
+        MinHeight="500">
 
     <Design.DataContext>
-        <!-- This only sets the DataContext for the previewer in an IDE,
-             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <Grid ColumnDefinitions="260,*">
+        <Border Grid.Column="0" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" BorderThickness="0,0,1,0">
+            <DockPanel Margin="8" LastChildFill="True">
+                <TextBlock DockPanel.Dock="Top" Text="Подключения" FontWeight="SemiBold" Margin="0,0,0,8"/>
+                <StackPanel DockPanel.Dock="Bottom" Orientation="Vertical" Spacing="8" Margin="0,8,0,0">
+                    <Button Content="Добавить" Command="{Binding AddConnectionCommand}"/>
+                    <Button Content="Изменить" Command="{Binding EditConnectionCommand}"/>
+                    <Button Content="Удалить" Command="{Binding DeleteConnectionCommand}"/>
+                    <Button Content="Открыть" Command="{Binding OpenConnectionCommand}" IsDefault="True"/>
+                </StackPanel>
+                <ListBox ItemsSource="{Binding Connections}"
+                         SelectedItem="{Binding SelectedConnection}"
+                         ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate DataType="vm:ConnectionItemViewModel">
+                            <StackPanel Margin="0,4">
+                                <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                <TextBlock Text="{Binding Profile.Host}" Opacity="0.7" TextWrapping="Wrap" FontSize="12"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
+        </Border>
 
+        <DockPanel Grid.Column="1">
+            <TextBlock DockPanel.Dock="Top" Text="Сессии" FontWeight="SemiBold" Margin="12,12,12,8"/>
+            <TabControl ItemsSource="{Binding Tabs}"
+                        SelectedItem="{Binding SelectedTab}"
+                        Margin="8,0,8,8">
+                <TabControl.ItemTemplate>
+                    <DataTemplate DataType="vm:TabSessionViewModel">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <TextBlock Text="{Binding Title}" VerticalAlignment="Center"/>
+                            <Button Content="✕"
+                                    Padding="4,0"
+                                    ToolTip.Tip="Закрыть вкладку"
+                                    Command="{Binding CloseTabCommand}"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </TabControl.ItemTemplate>
+                <TabControl.ContentTemplate>
+                    <DataTemplate DataType="vm:TabSessionViewModel">
+                        <views:TabSessionView DataContext="{Binding}"/>
+                    </DataTemplate>
+                </TabControl.ContentTemplate>
+            </TabControl>
+        </DockPanel>
+    </Grid>
 </Window>
