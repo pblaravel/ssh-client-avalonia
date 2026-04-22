@@ -18,20 +18,22 @@ public class ViewLocator : IDataTemplate
     {
         if (param is null)
             return null;
-        
-        var name = param.GetType().FullName!.Replace("ViewModel", "View", StringComparison.Ordinal);
-        var type = Type.GetType(name);
 
-        if (type != null)
-        {
-            return (Control)Activator.CreateInstance(type)!;
-        }
-        
-        return new TextBlock { Text = "Not Found: " + name };
+        var vmType = param.GetType();
+        if (!vmType.Name.EndsWith("ViewModel", StringComparison.Ordinal))
+            return new TextBlock { Text = "Not a ViewModel: " + vmType.FullName };
+
+        var viewShortName = vmType.Name[..^"ViewModel".Length];
+        var assembly = vmType.Assembly;
+        var viewType =
+            assembly.GetType($"SSHClientAvalonia.Views.{viewShortName}View")
+            ?? assembly.GetType($"SSHClientAvalonia.Views.{viewShortName}");
+
+        if (viewType != null)
+            return (Control)Activator.CreateInstance(viewType)!;
+
+        return new TextBlock { Text = "Not Found: SSHClientAvalonia.Views." + viewShortName };
     }
 
-    public bool Match(object? data)
-    {
-        return data is ViewModelBase;
-    }
+    public bool Match(object? data) => false;
 }

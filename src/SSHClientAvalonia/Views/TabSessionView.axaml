@@ -1,0 +1,69 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SSHClientAvalonia.ViewModels"
+             x:Class="SSHClientAvalonia.Views.TabSessionView"
+             x:Name="Root"
+             x:DataType="vm:TabSessionViewModel">
+  <Grid ColumnDefinitions="260,*" RowDefinitions="Auto,*,Auto,Auto">
+    <TextBlock Grid.Row="0" Grid.Column="0" Text="История команд" Margin="8,8,8,4" FontWeight="SemiBold"/>
+    <TextBlock Grid.Row="0" Grid.Column="1" Text="Терминал" Margin="8,8,8,4" FontWeight="SemiBold"/>
+
+    <DockPanel Grid.Row="1" Grid.Column="0" Margin="8,0,8,8" LastChildFill="True">
+      <TextBox DockPanel.Dock="Top"
+               PlaceholderText="Поиск…"
+               Text="{Binding HistoryFilter}"
+               Margin="0,0,0,8"/>
+      <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,8,0,0" Spacing="8">
+        <Button Content="Очистить историю" Command="{Binding ClearHistoryCommand}"/>
+      </StackPanel>
+      <ListBox ItemsSource="{Binding HistoryItems}"
+               MinHeight="120"
+               ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+        <ListBox.ItemTemplate>
+          <DataTemplate DataType="vm:CommandHistoryRowViewModel">
+            <Grid ColumnDefinitions="*,Auto,Auto" Margin="0,4">
+              <TextBlock Grid.Column="0" Text="{Binding Command}" TextWrapping="Wrap" VerticalAlignment="Center"/>
+              <Button Grid.Column="1" Content="▶" ToolTip.Tip="Повторить"
+                      Command="{Binding $parent[UserControl].DataContext.RunHistoryCommandCommand}"
+                      CommandParameter="{Binding}"
+                      Padding="6,2" Margin="4,0,0,0"/>
+              <Button Grid.Column="2" Content="✕" ToolTip.Tip="Удалить"
+                      Command="{Binding $parent[UserControl].DataContext.RemoveHistoryEntryCommand}"
+                      CommandParameter="{Binding}"
+                      Padding="6,2" Margin="4,0,0,0"/>
+            </Grid>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+    </DockPanel>
+
+    <ScrollViewer x:Name="TerminalScroll" Grid.Row="1" Grid.Column="1" Margin="8,0,8,8"
+                  HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+      <TextBox x:Name="TerminalBox"
+               Text="{Binding TerminalOutput}"
+               IsReadOnly="True"
+               AcceptsReturn="True"
+               TextWrapping="Wrap"
+               FontFamily="Consolas, Courier New, monospace"
+               BorderThickness="0"
+               Background="Transparent"/>
+    </ScrollViewer>
+
+    <TextBox Grid.Row="2" Grid.Column="1"
+             PlaceholderText="Команда (Enter — отправить)"
+             Text="{Binding CommandInput}"
+             FontFamily="Consolas, Courier New, monospace"
+             Margin="8,0,8,8"
+             KeyDown="OnCommandKeyDown"/>
+
+    <Grid Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" ColumnDefinitions="*,Auto" Margin="8,0,8,8">
+      <TextBlock Grid.Column="0" Text="{Binding StatusMessage}" VerticalAlignment="Center" TextWrapping="Wrap"/>
+      <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+        <Button Content="Отправить" Command="{Binding SendCommandCommand}" IsDefault="True"/>
+        <Button Content="Ctrl+C" Command="{Binding SendControlCCommand}" ToolTip.Tip="Прервать (SIGINT)"/>
+        <Button Content="Переподключить" Command="{Binding ReconnectCommand}"/>
+        <Button Content="Закрыть вкладку" Command="{Binding CloseTabCommand}"/>
+      </StackPanel>
+    </Grid>
+  </Grid>
+</UserControl>
