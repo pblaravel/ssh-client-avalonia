@@ -46,6 +46,8 @@ public partial class ConnectionEditViewModel : ViewModelBase
     [ObservableProperty]
     private string _validationMessage = string.Empty;
 
+    public string DialogTitle => IsNew ? "Новое подключение" : "Изменить подключение";
+
     public void ApplyToProfile()
     {
         WorkingProfile.Name = Name.Trim();

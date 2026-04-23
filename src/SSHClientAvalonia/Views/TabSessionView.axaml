@@ -3,67 +3,127 @@
              xmlns:vm="using:SSHClientAvalonia.ViewModels"
              x:Class="SSHClientAvalonia.Views.TabSessionView"
              x:Name="Root"
-             x:DataType="vm:TabSessionViewModel">
-  <Grid ColumnDefinitions="260,*" RowDefinitions="Auto,*,Auto,Auto">
-    <TextBlock Grid.Row="0" Grid.Column="0" Text="История команд" Margin="8,8,8,4" FontWeight="SemiBold"/>
-    <TextBlock Grid.Row="0" Grid.Column="1" Text="Терминал" Margin="8,8,8,4" FontWeight="SemiBold"/>
+             x:DataType="vm:TabSessionViewModel"
+             Background="Transparent">
+  <Grid ColumnDefinitions="280,*" ColumnSpacing="16" RowDefinitions="Auto,*,Auto" Margin="4,0,4,4">
+    <!-- История -->
+    <Border Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"
+            Classes="app-card"
+            Padding="0"
+            Background="{StaticResource AppSurface2Brush}">
+      <DockPanel LastChildFill="True" Margin="16">
+        <TextBlock DockPanel.Dock="Top" Text="История команд" Classes="app-section" />
+        <TextBox DockPanel.Dock="Top"
+                 Classes="app-input"
+                 PlaceholderText="Поиск по истории…"
+                 Text="{Binding HistoryFilter}"
+                 Margin="0,0,0,12" />
+        <Button DockPanel.Dock="Bottom"
+                Classes="app-toolbar"
+                Content="Очистить всю историю"
+                Command="{Binding ClearHistoryCommand}"
+                Margin="0,12,0,0" />
+        <ListBox ItemsSource="{Binding HistoryItems}"
+                 Classes="app-list"
+                 MinHeight="160"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+          <ListBox.ItemTemplate>
+            <DataTemplate DataType="vm:CommandHistoryRowViewModel">
+              <Border Background="#12FFFFFF" CornerRadius="8" Padding="10,8" Margin="0,0,0,6">
+                <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="6">
+                  <TextBlock Grid.Column="0"
+                             Text="{Binding Command}"
+                             TextWrapping="Wrap"
+                             VerticalAlignment="Center"
+                             FontFamily="JetBrains Mono, Cascadia Mono, Consolas, monospace"
+                             FontSize="12" />
+                  <Button Grid.Column="1"
+                          Classes="app-ghost"
+                          Content="▶"
+                          ToolTip.Tip="Повторить"
+                          Padding="8,4"
+                          Command="{Binding $parent[UserControl].DataContext.RunHistoryCommandCommand}"
+                          CommandParameter="{Binding}" />
+                  <Button Grid.Column="2"
+                          Classes="app-ghost"
+                          Content="✕"
+                          ToolTip.Tip="Удалить из истории"
+                          Padding="8,4"
+                          Command="{Binding $parent[UserControl].DataContext.RemoveHistoryEntryCommand}"
+                          CommandParameter="{Binding}" />
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </DockPanel>
+    </Border>
 
-    <DockPanel Grid.Row="1" Grid.Column="0" Margin="8,0,8,8" LastChildFill="True">
-      <TextBox DockPanel.Dock="Top"
-               PlaceholderText="Поиск…"
-               Text="{Binding HistoryFilter}"
-               Margin="0,0,0,8"/>
-      <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" Margin="0,8,0,0" Spacing="8">
-        <Button Content="Очистить историю" Command="{Binding ClearHistoryCommand}"/>
-      </StackPanel>
-      <ListBox ItemsSource="{Binding HistoryItems}"
-               MinHeight="120"
-               ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-        <ListBox.ItemTemplate>
-          <DataTemplate DataType="vm:CommandHistoryRowViewModel">
-            <Grid ColumnDefinitions="*,Auto,Auto" Margin="0,4">
-              <TextBlock Grid.Column="0" Text="{Binding Command}" TextWrapping="Wrap" VerticalAlignment="Center"/>
-              <Button Grid.Column="1" Content="▶" ToolTip.Tip="Повторить"
-                      Command="{Binding $parent[UserControl].DataContext.RunHistoryCommandCommand}"
-                      CommandParameter="{Binding}"
-                      Padding="6,2" Margin="4,0,0,0"/>
-              <Button Grid.Column="2" Content="✕" ToolTip.Tip="Удалить"
-                      Command="{Binding $parent[UserControl].DataContext.RemoveHistoryEntryCommand}"
-                      CommandParameter="{Binding}"
-                      Padding="6,2" Margin="4,0,0,0"/>
-            </Grid>
-          </DataTemplate>
-        </ListBox.ItemTemplate>
-      </ListBox>
-    </DockPanel>
+    <!-- Терминал -->
+    <StackPanel Grid.Row="0" Grid.Column="1" Spacing="8">
+      <TextBlock Text="Терминал" Classes="app-section" Margin="0,0,0,0" />
+      <Border CornerRadius="{StaticResource InputCornerRadius}"
+              BorderBrush="{StaticResource AppBorderBrush}"
+              BorderThickness="1"
+              Background="{StaticResource TerminalBackgroundBrush}"
+              MinHeight="280"
+              BoxShadow="{StaticResource CardShadowSm}">
+        <ScrollViewer x:Name="TerminalScroll"
+                      Padding="12"
+                      HorizontalScrollBarVisibility="Auto"
+                      VerticalScrollBarVisibility="Auto">
+          <TextBox x:Name="TerminalBox"
+                   Text="{Binding TerminalOutput}"
+                   IsReadOnly="True"
+                   AcceptsReturn="True"
+                   TextWrapping="Wrap"
+                   FontFamily="JetBrains Mono, Cascadia Mono, Consolas, Courier New, monospace"
+                   FontSize="13"
+                   LineHeight="20"
+                   Foreground="{StaticResource TerminalForegroundBrush}"
+                   Background="Transparent"
+                   BorderThickness="0"
+                   CaretBrush="{StaticResource AppAccentBrush}" />
+        </ScrollViewer>
+      </Border>
+    </StackPanel>
 
-    <ScrollViewer x:Name="TerminalScroll" Grid.Row="1" Grid.Column="1" Margin="8,0,8,8"
-                  HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-      <TextBox x:Name="TerminalBox"
-               Text="{Binding TerminalOutput}"
-               IsReadOnly="True"
-               AcceptsReturn="True"
-               TextWrapping="Wrap"
-               FontFamily="Consolas, Courier New, monospace"
-               BorderThickness="0"
-               Background="Transparent"/>
-    </ScrollViewer>
-
-    <TextBox Grid.Row="2" Grid.Column="1"
-             PlaceholderText="Команда (Enter — отправить)"
+    <TextBox Grid.Row="1" Grid.Column="1"
+             Classes="app-input"
+             VerticalAlignment="Bottom"
+             Margin="0,12,0,0"
+             PlaceholderText="Команда — Enter для отправки, Shift+Enter — новая строка"
              Text="{Binding CommandInput}"
-             FontFamily="Consolas, Courier New, monospace"
-             Margin="8,0,8,8"
-             KeyDown="OnCommandKeyDown"/>
+             FontFamily="JetBrains Mono, Cascadia Mono, Consolas, Courier New, monospace"
+             FontSize="13"
+             MinHeight="44"
+             KeyDown="OnCommandKeyDown" />
 
-    <Grid Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" ColumnDefinitions="*,Auto" Margin="8,0,8,8">
-      <TextBlock Grid.Column="0" Text="{Binding StatusMessage}" VerticalAlignment="Center" TextWrapping="Wrap"/>
-      <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
-        <Button Content="Отправить" Command="{Binding SendCommandCommand}" IsDefault="True"/>
-        <Button Content="Ctrl+C" Command="{Binding SendControlCCommand}" ToolTip.Tip="Прервать (SIGINT)"/>
-        <Button Content="Переподключить" Command="{Binding ReconnectCommand}"/>
-        <Button Content="Закрыть вкладку" Command="{Binding CloseTabCommand}"/>
-      </StackPanel>
-    </Grid>
+    <!-- Нижняя панель действий -->
+    <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+            Margin="0,16,0,0"
+            CornerRadius="{StaticResource InputCornerRadius}"
+            Background="#14FFFFFF"
+            BorderBrush="{StaticResource AppBorderBrush}"
+            BorderThickness="1"
+            Padding="16,12">
+      <Grid ColumnDefinitions="*,Auto">
+        <StackPanel Grid.Column="0" VerticalAlignment="Center" Spacing="4">
+          <TextBlock Text="{Binding StatusMessage}"
+                     TextWrapping="Wrap"
+                     FontSize="13"
+                     Opacity="0.95" />
+          <TextBlock Text="Ctrl+C прерывает процесс на сервере"
+                     FontSize="11"
+                     Foreground="{StaticResource AppMutedForegroundBrush}" />
+        </StackPanel>
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+          <Button Classes="app-primary" Content="Отправить" Command="{Binding SendCommandCommand}" />
+          <Button Classes="app-toolbar" Content="Ctrl+C" Command="{Binding SendControlCCommand}" ToolTip.Tip="SIGINT" />
+          <Button Classes="app-toolbar" Content="Переподключить" Command="{Binding ReconnectCommand}" />
+          <Button Classes="app-toolbar" Content="Закрыть вкладку" Command="{Binding CloseTabCommand}" />
+        </StackPanel>
+      </Grid>
+    </Border>
   </Grid>
 </UserControl>

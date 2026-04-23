@@ -3,42 +3,57 @@
         xmlns:vm="using:SSHClientAvalonia.ViewModels"
         x:Class="SSHClientAvalonia.Views.ConnectionEditWindow"
         x:DataType="vm:ConnectionEditViewModel"
-        Title="Подключение"
-        Width="480"
+        Title="{Binding DialogTitle}"
+        Width="520"
         SizeToContent="Height"
         CanResize="False"
-        WindowStartupLocation="CenterOwner">
-  <Grid Margin="16" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto,*" ColumnDefinitions="140,*">
-    <TextBlock Grid.Row="0" Grid.Column="0" Text="Название" VerticalAlignment="Center" Margin="0,0,8,8"/>
-    <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Name}" Margin="0,0,0,8"/>
+        WindowStartupLocation="CenterOwner"
+        Background="{StaticResource AppWindowBackgroundBrush}">
+  <Border Margin="24" Classes="app-card" Padding="0">
+    <StackPanel Margin="28">
+      <TextBlock Text="{Binding DialogTitle}" FontSize="20" FontWeight="SemiBold" Margin="0,0,0,4" />
+      <TextBlock Text="Укажите хост и способ входа. Данные хранятся локально."
+                 Foreground="{StaticResource AppMutedForegroundBrush}"
+                 TextWrapping="Wrap"
+                 Margin="0,0,0,24" />
 
-    <TextBlock Grid.Row="1" Grid.Column="0" Text="Хост" VerticalAlignment="Center" Margin="0,0,8,8"/>
-    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Host}" Margin="0,0,0,8"/>
+      <Grid ColumnDefinitions="140,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,Auto,Auto" RowSpacing="12" ColumnSpacing="12">
+        <TextBlock Grid.Row="0" Grid.Column="0" Text="Название" VerticalAlignment="Center" Foreground="{StaticResource AppMutedForegroundBrush}" />
+        <TextBox Grid.Row="0" Grid.Column="1" Classes="app-input" Text="{Binding Name}" />
 
-    <TextBlock Grid.Row="2" Grid.Column="0" Text="Порт" VerticalAlignment="Center" Margin="0,0,8,8"/>
-    <NumericUpDown Grid.Row="2" Grid.Column="1" Minimum="1" Maximum="65535" Value="{Binding Port}" Margin="0,0,0,8"/>
+        <TextBlock Grid.Row="1" Grid.Column="0" Text="Хост" VerticalAlignment="Center" Foreground="{StaticResource AppMutedForegroundBrush}" />
+        <TextBox Grid.Row="1" Grid.Column="1" Classes="app-input" Text="{Binding Host}" />
 
-    <TextBlock Grid.Row="3" Grid.Column="0" Text="Пользователь" VerticalAlignment="Center" Margin="0,0,8,8"/>
-    <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding Username}" Margin="0,0,0,8"/>
+        <TextBlock Grid.Row="2" Grid.Column="0" Text="Порт" VerticalAlignment="Center" Foreground="{StaticResource AppMutedForegroundBrush}" />
+        <NumericUpDown Grid.Row="2" Grid.Column="1" Minimum="1" Maximum="65535" Value="{Binding Port}" />
 
-    <TextBlock Grid.Row="4" Grid.Column="0" Text="Пароль" VerticalAlignment="Center" Margin="0,0,8,8"/>
-    <TextBox Grid.Row="4" Grid.Column="1" PasswordChar="*" Text="{Binding Password}" Margin="0,0,0,8"/>
+        <TextBlock Grid.Row="3" Grid.Column="0" Text="Пользователь" VerticalAlignment="Center" Foreground="{StaticResource AppMutedForegroundBrush}" />
+        <TextBox Grid.Row="3" Grid.Column="1" Classes="app-input" Text="{Binding Username}" />
 
-    <TextBlock Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" TextWrapping="Wrap" Margin="0,8,0,8"
-               Text="SSH-ключ (опционально). Если указан файл ключа, он будет использован вместе с паролем при наличии."/>
+        <TextBlock Grid.Row="4" Grid.Column="0" Text="Пароль" VerticalAlignment="Center" Foreground="{StaticResource AppMutedForegroundBrush}" />
+        <TextBox Grid.Row="4" Grid.Column="1" Classes="app-input" PasswordChar="*" Text="{Binding Password}" />
 
-    <TextBlock Grid.Row="6" Grid.Column="0" Text="Путь к ключу" VerticalAlignment="Center" Margin="0,0,8,8"/>
-    <TextBox Grid.Row="6" Grid.Column="1" Text="{Binding PrivateKeyPath}" PlaceholderText="/home/user/.ssh/id_rsa" Margin="0,0,0,8"/>
+        <TextBlock Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,12,0,0"
+                   Text="SSH-ключ (необязательно)"
+                   FontWeight="SemiBold"
+                   Foreground="{StaticResource AppMutedForegroundBrush}" />
 
-    <TextBlock Grid.Row="7" Grid.Column="0" Text="Пароль ключа" VerticalAlignment="Center" Margin="0,0,8,8"/>
-    <TextBox Grid.Row="7" Grid.Column="1" PasswordChar="*" Text="{Binding PrivateKeyPassphrase}" Margin="0,0,0,8"/>
+        <TextBlock Grid.Row="6" Grid.Column="0" Text="Путь к ключу" VerticalAlignment="Center" Foreground="{StaticResource AppMutedForegroundBrush}" />
+        <TextBox Grid.Row="6" Grid.Column="1" Classes="app-input" Text="{Binding PrivateKeyPath}" PlaceholderText="~/.ssh/id_ed25519" />
 
-    <TextBlock Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding ValidationMessage}"
-               Foreground="Crimson" TextWrapping="Wrap" Margin="0,8,0,0"/>
+        <TextBlock Grid.Row="7" Grid.Column="0" Text="Пароль ключа" VerticalAlignment="Center" Foreground="{StaticResource AppMutedForegroundBrush}" />
+        <TextBox Grid.Row="7" Grid.Column="1" Classes="app-input" PasswordChar="*" Text="{Binding PrivateKeyPassphrase}" />
+      </Grid>
 
-    <StackPanel Grid.Row="9" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8" Margin="0,16,0,0">
-      <Button Content="Отмена" IsCancel="True" Click="OnCancelClick"/>
-      <Button Content="Сохранить" IsDefault="True" Click="OnSaveClick"/>
+      <TextBlock Text="{Binding ValidationMessage}"
+                 Foreground="{StaticResource AppErrorBrush}"
+                 TextWrapping="Wrap"
+                 Margin="0,16,0,0" />
+
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="12" Margin="0,28,0,0">
+        <Button Classes="app-toolbar" Content="Отмена" MinWidth="100" IsCancel="True" Click="OnCancelClick" />
+        <Button Classes="app-primary" Content="Сохранить" MinWidth="120" IsDefault="True" Click="OnSaveClick" />
+      </StackPanel>
     </StackPanel>
-  </Grid>
+  </Border>
 </Window>

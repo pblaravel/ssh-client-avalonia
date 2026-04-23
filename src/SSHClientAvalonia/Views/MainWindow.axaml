@@ -9,31 +9,51 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         Icon="/Assets/avalonia-logo.ico"
         Title="SSH-клиент"
-        MinWidth="800"
-        MinHeight="500">
+        MinWidth="880"
+        MinHeight="560"
+        Background="{StaticResource AppWindowBackgroundBrush}">
 
     <Design.DataContext>
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <Grid ColumnDefinitions="260,*">
-        <Border Grid.Column="0" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" BorderThickness="0,0,1,0">
-            <DockPanel Margin="8" LastChildFill="True">
-                <TextBlock DockPanel.Dock="Top" Text="Подключения" FontWeight="SemiBold" Margin="0,0,0,8"/>
-                <StackPanel DockPanel.Dock="Bottom" Orientation="Vertical" Spacing="8" Margin="0,8,0,0">
-                    <Button Content="Добавить" Command="{Binding AddConnectionCommand}"/>
-                    <Button Content="Изменить" Command="{Binding EditConnectionCommand}"/>
-                    <Button Content="Удалить" Command="{Binding DeleteConnectionCommand}"/>
-                    <Button Content="Открыть" Command="{Binding OpenConnectionCommand}" IsDefault="True"/>
+    <Grid Margin="20" ColumnDefinitions="288,*" ColumnSpacing="20">
+        <!-- Сайдбар -->
+        <Border Grid.Column="0" Classes="app-card" Padding="0">
+            <DockPanel LastChildFill="True">
+                <StackPanel DockPanel.Dock="Top" Margin="20,20,20,12">
+                    <TextBlock Text="SSH" Classes="app-heading" />
+                    <TextBlock Text="Подключения" Classes="app-section" Margin="0,4,0,0" />
                 </StackPanel>
-                <ListBox ItemsSource="{Binding Connections}"
+
+                <StackPanel DockPanel.Dock="Bottom" Margin="16,0,16,16" Spacing="8">
+                    <Button Classes="app-primary" Content="Открыть сессию" Command="{Binding OpenConnectionCommand}" />
+                    <Button Classes="app-toolbar" Content="Новое подключение" Command="{Binding AddConnectionCommand}" />
+                    <Button Classes="app-toolbar" Content="Изменить" Command="{Binding EditConnectionCommand}" />
+                    <Button Classes="app-toolbar" Content="Удалить" Command="{Binding DeleteConnectionCommand}" />
+                </StackPanel>
+
+                <ListBox DockPanel.Dock="Top"
+                         Classes="app-list"
+                         Margin="12,0,12,8"
+                         ItemsSource="{Binding Connections}"
                          SelectedItem="{Binding SelectedConnection}"
                          ScrollViewer.HorizontalScrollBarVisibility="Disabled">
                     <ListBox.ItemTemplate>
                         <DataTemplate DataType="vm:ConnectionItemViewModel">
-                            <StackPanel Margin="0,4">
-                                <TextBlock Text="{Binding DisplayName}" FontWeight="SemiBold" TextWrapping="Wrap"/>
-                                <TextBlock Text="{Binding Profile.Host}" Opacity="0.7" TextWrapping="Wrap" FontSize="12"/>
+                            <StackPanel Spacing="4">
+                                <TextBlock Text="{Binding DisplayName}"
+                                           FontWeight="SemiBold"
+                                           FontSize="14"
+                                           TextWrapping="Wrap" />
+                                <TextBlock Text="{Binding Profile.Host}"
+                                           FontSize="12"
+                                           Foreground="{StaticResource AppMutedForegroundBrush}"
+                                           TextWrapping="Wrap" />
+                                <TextBlock FontSize="11"
+                                           Foreground="{StaticResource AppMutedForegroundBrush}"
+                                           Opacity="0.85"
+                                           Text="{Binding Profile.Port, StringFormat='порт {0}'}" />
                             </StackPanel>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
@@ -41,28 +61,50 @@
             </DockPanel>
         </Border>
 
-        <DockPanel Grid.Column="1">
-            <TextBlock DockPanel.Dock="Top" Text="Сессии" FontWeight="SemiBold" Margin="12,12,12,8"/>
-            <TabControl ItemsSource="{Binding Tabs}"
-                        SelectedItem="{Binding SelectedTab}"
-                        Margin="8,0,8,8">
-                <TabControl.ItemTemplate>
-                    <DataTemplate DataType="vm:TabSessionViewModel">
-                        <StackPanel Orientation="Horizontal" Spacing="6">
-                            <TextBlock Text="{Binding Title}" VerticalAlignment="Center"/>
-                            <Button Content="✕"
-                                    Padding="4,0"
-                                    ToolTip.Tip="Закрыть вкладку"
-                                    Command="{Binding CloseTabCommand}"/>
-                        </StackPanel>
-                    </DataTemplate>
-                </TabControl.ItemTemplate>
-                <TabControl.ContentTemplate>
-                    <DataTemplate DataType="vm:TabSessionViewModel">
-                        <views:TabSessionView DataContext="{Binding}"/>
-                    </DataTemplate>
-                </TabControl.ContentTemplate>
-            </TabControl>
-        </DockPanel>
+        <!-- Основная зона -->
+        <Border Grid.Column="1" Classes="app-card" Padding="0">
+            <DockPanel LastChildFill="True">
+                <StackPanel DockPanel.Dock="Top" Margin="24,20,24,0" Orientation="Horizontal" Spacing="12">
+                    <TextBlock Text="Сессии" VerticalAlignment="Center" Classes="app-heading" />
+                    <Border VerticalAlignment="Center"
+                            Background="#20FFFFFF"
+                            CornerRadius="20"
+                            Padding="10,4">
+                        <TextBlock FontSize="12"
+                                   Foreground="{StaticResource AppMutedForegroundBrush}"
+                                   Text="{Binding Tabs.Count, StringFormat='{}{0} активных'}" />
+                    </Border>
+                </StackPanel>
+
+                <TabControl Classes="app-tabs"
+                            Margin="16,12,16,16"
+                            ItemsSource="{Binding Tabs}"
+                            SelectedItem="{Binding SelectedTab}">
+                    <TabControl.ItemTemplate>
+                        <DataTemplate DataType="vm:TabSessionViewModel">
+                            <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                                <Ellipse Width="8" Height="8" VerticalAlignment="Center"
+                                         Fill="{StaticResource AppAccentBrush}" />
+                                <TextBlock Text="{Binding Title}"
+                                           VerticalAlignment="Center"
+                                           MaxWidth="160"
+                                           TextTrimming="CharacterEllipsis" />
+                                <Button Classes="app-ghost"
+                                        Content="✕"
+                                        Padding="6,2"
+                                        FontSize="12"
+                                        ToolTip.Tip="Закрыть вкладку"
+                                        Command="{Binding CloseTabCommand}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </TabControl.ItemTemplate>
+                    <TabControl.ContentTemplate>
+                        <DataTemplate DataType="vm:TabSessionViewModel">
+                            <views:TabSessionView DataContext="{Binding}" />
+                        </DataTemplate>
+                    </TabControl.ContentTemplate>
+                </TabControl>
+            </DockPanel>
+        </Border>
     </Grid>
 </Window>
