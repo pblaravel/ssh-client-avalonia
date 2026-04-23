@@ -13,6 +13,10 @@
         MinHeight="560"
         Background="{StaticResource AppWindowBackgroundBrush}">
 
+    <Window.KeyBindings>
+        <KeyBinding Gesture="Ctrl+O" Command="{Binding OpenConnectionCommand}" />
+    </Window.KeyBindings>
+
     <Design.DataContext>
         <vm:MainWindowViewModel/>
     </Design.DataContext>

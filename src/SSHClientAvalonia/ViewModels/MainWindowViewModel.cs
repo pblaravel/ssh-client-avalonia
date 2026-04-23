@@ -35,18 +35,27 @@ public partial class MainWindowViewModel : ViewModelBase
     private async Task LoadConnectionsAsync()
     {
         await _historyRepository.LoadFromDiskAsync().ConfigureAwait(false);
-        var list = await _storage.LoadAsync().ConfigureAwait(false);
+        var saved = await _storage.LoadAsync().ConfigureAwait(false);
+        var merged = new List<SshConnectionProfile> { DemoConnections.CreateLocalDemo() };
+        foreach (var p in saved.Where(p => p.Id != DemoConnections.LocalDemoId))
+            merged.Add(p);
+
         await Dispatcher.UIThread.InvokeAsync(() =>
         {
             Connections.Clear();
-            foreach (var p in list)
+            foreach (var p in merged)
                 Connections.Add(new ConnectionItemViewModel(p));
+
+            SelectedConnection ??= Connections.FirstOrDefault();
         });
     }
 
     private async Task SaveConnectionsAsync()
     {
-        var profiles = Connections.Select(c => c.Profile).ToList();
+        var profiles = Connections
+            .Select(c => c.Profile)
+            .Where(p => p.Id != DemoConnections.LocalDemoId)
+            .ToList();
         await _storage.SaveAsync(profiles).ConfigureAwait(false);
     }
 
