@@ -39,11 +39,9 @@ public partial class TabSessionViewModel : ViewModelBase, IAsyncDisposable
     [ObservableProperty]
     private string _title = string.Empty;
 
+    /// <summary>Только вывод с сервера; ввод пользователя добавляется во View поверх этого текста.</summary>
     [ObservableProperty]
-    private string _terminalOutput = string.Empty;
-
-    [ObservableProperty]
-    private string _commandInput = string.Empty;
+    private string _serverOutput = string.Empty;
 
     [ObservableProperty]
     private string _historyFilter = string.Empty;
@@ -84,9 +82,12 @@ public partial class TabSessionViewModel : ViewModelBase, IAsyncDisposable
                 _outputBuffer.Remove(0, _outputBuffer.Length / 2);
 
             _outputBuffer.Append(chunk);
-            TerminalOutput = _outputBuffer.ToString();
+            ServerOutput = _outputBuffer.ToString();
         });
     }
+
+    /// <summary>View подписывается и подставляет строку в локальный ввод терминала.</summary>
+    public event Action<string>? ReplayCommandRequested;
 
     private void OnConnectionFailed(Exception ex)
     {
@@ -116,16 +117,13 @@ public partial class TabSessionViewModel : ViewModelBase, IAsyncDisposable
         }
     }
 
-    [RelayCommand]
-    private async Task SendCommandAsync()
+    public void SubmitLocalCommand(string line)
     {
-        var line = CommandInput.ReplaceLineEndings(string.Empty).TrimEnd();
-        if (line.Length == 0)
+        var normalized = line.ReplaceLineEndings("\n").TrimEnd();
+        if (normalized.Length == 0)
             return;
 
-        CommandInput = string.Empty;
-
-        var entry = new CommandHistoryEntry { Command = line };
+        var entry = new CommandHistoryEntry { Command = normalized };
         _historyRepository.Add(Profile.Id, entry);
         ApplyHistoryFilter();
 
@@ -135,7 +133,7 @@ public partial class TabSessionViewModel : ViewModelBase, IAsyncDisposable
             return;
         }
 
-        _session.SendLine(line);
+        _session.SendLine(normalized);
     }
 
     [RelayCommand]
@@ -148,11 +146,10 @@ public partial class TabSessionViewModel : ViewModelBase, IAsyncDisposable
     [RelayCommand]
     private void RunHistoryCommand(CommandHistoryRowViewModel? row)
     {
-        if (row is null || !_session.IsConnected)
+        if (row is null)
             return;
 
-        CommandInput = row.Command;
-        _ = SendCommandAsync();
+        ReplayCommandRequested?.Invoke(row.Command);
     }
 
     [RelayCommand]
@@ -178,7 +175,7 @@ public partial class TabSessionViewModel : ViewModelBase, IAsyncDisposable
         IsBusy = true;
         StatusMessage = "Переподключение…";
         _outputBuffer.Clear();
-        Dispatcher.UIThread.Post(() => TerminalOutput = string.Empty);
+        Dispatcher.UIThread.Post(() => ServerOutput = string.Empty);
 
         await _session.DisconnectAsync().ConfigureAwait(false);
         await ConnectAsync().ConfigureAwait(false);
@@ -192,6 +189,7 @@ public partial class TabSessionViewModel : ViewModelBase, IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
+        ReplayCommandRequested = null;
         _session.OutputReceived -= OnOutputReceived;
         _session.ConnectionFailed -= OnConnectionFailed;
         await _session.DisposeAsync().ConfigureAwait(false);
