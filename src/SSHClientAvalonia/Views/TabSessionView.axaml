@@ -1,0 +1,127 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:SSHClientAvalonia.ViewModels"
+             x:Class="SSHClientAvalonia.Views.TabSessionView"
+             x:Name="Root"
+             x:DataType="vm:TabSessionViewModel"
+             Background="Transparent">
+  <Grid ColumnDefinitions="*,300" ColumnSpacing="16" RowDefinitions="*,Auto" Margin="4,0,4,4">
+    <!-- Терминал слева (шире) — ввод в той же области под выводом сервера -->
+    <Border Grid.Row="0" Grid.Column="0"
+            Classes="app-card"
+            Padding="0"
+            VerticalAlignment="Stretch">
+      <DockPanel LastChildFill="True" Margin="16">
+        <TextBlock DockPanel.Dock="Top" Text="Терминал" Classes="app-section" />
+        <Border DockPanel.Dock="Top"
+                CornerRadius="{StaticResource InputCornerRadius}"
+                BorderBrush="{StaticResource AppBorderBrush}"
+                BorderThickness="1"
+                Background="{StaticResource TerminalBackgroundBrush}"
+                MinHeight="360"
+                VerticalAlignment="Stretch"
+                BoxShadow="{StaticResource CardShadowSm}">
+          <ScrollViewer x:Name="TerminalScroll"
+                        Padding="12"
+                        HorizontalScrollBarVisibility="Auto"
+                        VerticalScrollBarVisibility="Auto">
+            <TextBox x:Name="TerminalBox"
+                     AcceptsReturn="True"
+                     TextWrapping="Wrap"
+                     FontFamily="JetBrains Mono, Cascadia Mono, Consolas, Courier New, monospace"
+                     FontSize="13"
+                     LineHeight="20"
+                     Foreground="{StaticResource TerminalForegroundBrush}"
+                     Background="Transparent"
+                     BorderThickness="0"
+                     CaretBrush="{StaticResource AppAccentBrush}"
+                     TextChanged="OnTerminalTextChanged"
+                     GotFocus="OnTerminalGotFocus"
+                     KeyDown="OnTerminalKeyDown" />
+          </ScrollViewer>
+        </Border>
+      </DockPanel>
+    </Border>
+
+    <!-- История команд справа -->
+    <Border Grid.Row="0" Grid.Column="1"
+            Classes="app-card"
+            Padding="0"
+            Background="{StaticResource AppSurface2Brush}"
+            VerticalAlignment="Stretch"
+            MinWidth="280">
+      <DockPanel LastChildFill="True" Margin="16">
+        <TextBlock DockPanel.Dock="Top" Text="История команд" Classes="app-section" />
+        <TextBox DockPanel.Dock="Top"
+                 Classes="app-input"
+                 PlaceholderText="Поиск…"
+                 Text="{Binding HistoryFilter}"
+                 Margin="0,0,0,12" />
+        <Button DockPanel.Dock="Bottom"
+                Classes="app-toolbar"
+                Content="Очистить историю"
+                Command="{Binding ClearHistoryCommand}"
+                Margin="0,12,0,0" />
+        <ListBox ItemsSource="{Binding HistoryItems}"
+                 Classes="app-list"
+                 MinHeight="120"
+                 ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+          <ListBox.ItemTemplate>
+            <DataTemplate DataType="vm:CommandHistoryRowViewModel">
+              <Border Background="#12FFFFFF" CornerRadius="8" Padding="10,8" Margin="0,0,0,6">
+                <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="6">
+                  <TextBlock Grid.Column="0"
+                             Text="{Binding Command}"
+                             TextWrapping="Wrap"
+                             VerticalAlignment="Center"
+                             FontFamily="JetBrains Mono, Cascadia Mono, Consolas, monospace"
+                             FontSize="12" />
+                  <Button Grid.Column="1"
+                          Classes="app-ghost"
+                          Content="▶"
+                          ToolTip.Tip="Вставить в терминал"
+                          Padding="8,4"
+                          Command="{Binding $parent[UserControl].DataContext.RunHistoryCommandCommand}"
+                          CommandParameter="{Binding}" />
+                  <Button Grid.Column="2"
+                          Classes="app-ghost"
+                          Content="✕"
+                          ToolTip.Tip="Удалить"
+                          Padding="8,4"
+                          Command="{Binding $parent[UserControl].DataContext.RemoveHistoryEntryCommand}"
+                          CommandParameter="{Binding}" />
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </DockPanel>
+    </Border>
+
+    <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
+            Margin="0,12,0,0"
+            CornerRadius="{StaticResource InputCornerRadius}"
+            Background="#14FFFFFF"
+            BorderBrush="{StaticResource AppBorderBrush}"
+            BorderThickness="1"
+            Padding="16,12">
+      <Grid ColumnDefinitions="*,Auto">
+        <StackPanel Grid.Column="0" VerticalAlignment="Center" Spacing="4">
+          <TextBlock Text="{Binding StatusMessage}"
+                     TextWrapping="Wrap"
+                     FontSize="13"
+                     Opacity="0.95" />
+          <TextBlock Text="Ввод в терминале внизу — Enter отправить, Shift+Enter новая строка. Ctrl+C — прервать на сервере."
+                     FontSize="11"
+                     Foreground="{StaticResource AppMutedForegroundBrush}"
+                     TextWrapping="Wrap" />
+        </StackPanel>
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+          <Button Classes="app-toolbar" Content="Ctrl+C" Command="{Binding SendControlCCommand}" ToolTip.Tip="SIGINT" />
+          <Button Classes="app-toolbar" Content="Переподключить" Command="{Binding ReconnectCommand}" />
+          <Button Classes="app-toolbar" Content="Закрыть вкладку" Command="{Binding CloseTabCommand}" />
+        </StackPanel>
+      </Grid>
+    </Border>
+  </Grid>
+</UserControl>
